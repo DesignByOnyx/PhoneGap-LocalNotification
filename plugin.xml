@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.apache.cordova.plugin.localNotification"
+    version="1.0.0">
+    
+    <engines>
+	    <engine name="cordova" version="&gt;=3.0.0" platform="ios|android" />
+	</engines>
+	
+	<name>Local Notification</name>
+	<description>Local Notification (Alarm Manager) Plugin For PhoneGap.</description>
+	<author>Ryan Wheale</author>
+	<license>The MIT License</license>
+	
+	<js-module src="www/localNotification.js" name="localNotification">
+        <clobbers target="window.localNotification" />
+	</js-module>
+	
+	<platform name="android">
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="LocalNotification" >
+	        	<param name="android-package" value="org.apache.cordova.plugin.localNotification"/>
+			</feature>
+		</config-file>
+		
+		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <receiver android:name="org.apache.cordova.plugin.localNotification.AlarmReceiver" >
+            </receiver>
+            
+            <receiver android:name="org.apache.cordova.plugin.localNotification.AlarmRestoreOnBoot" >
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                </intent-filter>
+            </receiver>
+        </config-file>
+		
+		<source-file src="src/android/AlarmHelper.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
+        <source-file src="src/android/AlarmReceiver.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
+        <source-file src="src/android/AlarmRestoreOnBoot.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
+        <source-file src="src/android/LocalNotification.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
+        <source-file src="src/android/android-support-v4.jar" target-dir="libs/" />
+	</platform>
+	
+	<platform name="ios">
+		<config-file target="config.xml" parent="/*">
+            <feature name="LocalNotification">
+                <param name="ios-package" value="LocalNotification"/>
+            </feature>
+        </config-file>
+        
+        <plugins-plist key="LocalNotification" string="LocalNotification" />
+
+        <header-file src="src/iOS/LocalNotification.h" />
+        <source-file src="src/iOS/LocalNotification.m" />
+    </platform>
+</plugin>
