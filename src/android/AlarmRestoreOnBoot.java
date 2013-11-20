@@ -1,4 +1,4 @@
-package com.bicrement.plugins.localNotification;
+package org.apache.cordova.localnotification;
 
 import java.util.Calendar;
 import java.util.Map;

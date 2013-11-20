@@ -1,6 +1,8 @@
-package com.bicrement.plugins.localNotification;
+package org.apache.cordova.localnotification;
 
 import java.util.Calendar;
+
+import com.jobclocker.app.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -70,13 +72,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 		final NotificationManager notificationMgr = 
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		// Define the Intent
-		final Intent notificationIntent = new Intent(context, YourClass.class);
+		final Intent notificationIntent = new Intent(context, com.jobclocker.app.JobClocker.class);
 		final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		// Notification Builder
 		// You will need Support Library to use NotificationCompat.Builder
 		NotificationCompat.Builder mBuilder =
 			    new NotificationCompat.Builder(context)
-				    .setSmallIcon(R.drawable.ic_launcher)
+				    .setSmallIcon(R.drawable.launcher_icon)
 				    .setContentTitle(notificationTitle)
 				    .setContentText(notificationSubText)
 				    .setTicker(tickerText)
@@ -91,7 +93,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		 * the alarm intent.
 		 */
 		final int id = Integer.parseInt(notificationId.substring(
-				com.bicrement.plugins.localNotification.LocalNotification.PLUGIN_PREFIX.length()));
+				org.apache.cordova.localnotification.LocalNotification.PLUGIN_PREFIX.length()));
 		notificationMgr.notify(id, mBuilder.build());
 	}
 }
