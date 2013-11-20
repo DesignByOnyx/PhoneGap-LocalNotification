@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="org.apache.cordova.plugin.localNotification"
+    id="org.apache.cordova.localnotification"
     version="1.0.0">
     
     <engines>
@@ -13,33 +13,32 @@
 	<author>Ryan Wheale</author>
 	<license>The MIT License</license>
 	
-	<js-module src="www/localNotification.js" name="localNotification">
-        <clobbers target="window.localNotification" />
+	<js-module src="www/LocalNotification.js" name="LocalNotification">
+        <clobbers target="window.LocalNotification" />
 	</js-module>
 	
 	<platform name="android">
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="LocalNotification" >
-	        	<param name="android-package" value="org.apache.cordova.plugin.localNotification"/>
+	        	<param name="android-package" value="org.apache.cordova.localnotification"/>
 			</feature>
 		</config-file>
 		
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <receiver android:name="org.apache.cordova.plugin.localNotification.AlarmReceiver" >
+            <receiver android:name="org.apache.cordova.localnotification.AlarmReceiver" >
             </receiver>
             
-            <receiver android:name="org.apache.cordova.plugin.localNotification.AlarmRestoreOnBoot" >
+            <receiver android:name="org.apache.cordova.localnotification.AlarmRestoreOnBoot" >
                 <intent-filter>
                     <action android:name="android.intent.action.BOOT_COMPLETED" />
                 </intent-filter>
             </receiver>
         </config-file>
 		
-		<source-file src="src/android/AlarmHelper.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
-        <source-file src="src/android/AlarmReceiver.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
-        <source-file src="src/android/AlarmRestoreOnBoot.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
-        <source-file src="src/android/LocalNotification.java" target-dir="src/org/apache/cordova/plugin/localnotification/" />
-        <!--<source-file src="src/android/android-support-v4.jar" target-dir="libs/" />-->
+		<source-file src="src/android/AlarmHelper.java" target-dir="src/org/apache/cordova/localnotification/" />
+        <source-file src="src/android/AlarmReceiver.java" target-dir="src/org/apache/cordova/localnotification/" />
+        <source-file src="src/android/AlarmRestoreOnBoot.java" target-dir="src/org/apache/cordova/localnotification/" />
+        <source-file src="src/android/LocalNotification.java" target-dir="src/org/apache/cordova/localnotification/" />
 	</platform>
 	
 	<platform name="ios">
