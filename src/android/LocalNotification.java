@@ -1,6 +1,9 @@
 package org.apache.cordova.localnotification;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -45,20 +48,26 @@ public class LocalNotification extends CordovaPlugin {
 		
 		Log.d(PLUGIN_NAME, "Plugin execute called with action: " + action);
 		
-		if (action.equalsIgnoreCase("add")) {
+		if (action.equalsIgnoreCase("addNotification")) {
 			persistAlarm(args.getInt(0), args);
 			
 			Log.d(PLUGIN_NAME, "Add Notification with Id: " + args.getInt(0));
-
-			success = this.add(args.getInt(0), args.getString(1), args.getString(2),
-					args.getString(3), args.getJSONArray(4), args.getString(5));
-		} else if (action.equalsIgnoreCase("cancel")) {
+			
+			String notificationId = args.getString(0);
+			long fireDate = args.getLong(1);
+			String title = args.getString(2);
+			String body = args.getString(3);
+			String repeatInterval = args.getString(4);
+			String callbackData = args.getString(5);
+			
+			success = this.add(notificationId, fireDate, title, body, repeatInterval, callbackData);
+		} else if (action.equalsIgnoreCase("cancelNotification")) {
 			unpersistAlarm(args.getInt(0));
 			
 			Log.d(PLUGIN_NAME, "Cancel Notification with Id: " + args.getInt(0));
 
 			success = this.cancelNotification(args.getInt(0));
-		} else if (action.equalsIgnoreCase("cancelall")) {
+		} else if (action.equalsIgnoreCase("cancelAllNotifications")) {
 			unpersistAlarmAll();
 
 			success = this.cancelAllNotifications();
@@ -74,22 +83,41 @@ public class LocalNotification extends CordovaPlugin {
 	/**
 	 * Set an alarm
 	 */
-	public boolean add(int id, String title, String subtitle, String ticker, JSONArray date, String repeat) {
+	//success = this.add(notificationId, fireDate, title, body, repeatInterval, callbackData);
+	public boolean add(
+			String notificationId, 
+			long fireDate, 
+			String title, 
+			String body, 
+			String repeatInterval, 
+			String callbackData
+	) {
+		Map<String, Long> repeatDict = new HashMap<String, Long>();
+		repeatDict.put("hourly"		, 3600000L); // 1000 x 60 x 60
+		repeatDict.put("daily"		, 43200000L); // x 24
+		repeatDict.put("weekly"		, 302400000L); // x 7
+		repeatDict.put("monthly"	, 1313999712L); // daily x 30.41666
+		repeatDict.put("quarterly"	, 3942000000L); // daily x 91.25
+		repeatDict.put("yearly"		, 15768000000L); // daily x 365
+		
+		Date date = new Date();
 		Calendar calendar = Calendar.getInstance();
 		
-		if (date.length() != 0) {
-			try {
-				calendar.set(date.getInt(0), date.getInt(1), date.getInt(2),
-						date.getInt(3), date.getInt(4), date.getInt(5));
-				
-				Log.d(PLUGIN_NAME, "Add Alarm at " + calendar.toString());
-			} catch (JSONException e) {
-				Log.d(PLUGIN_NAME, "JSONException in add " + calendar.toString());
-			}
+		date.setTime(fireDate);
+		calendar.setTime(date);
+		
+		long repeatMillis = 0;
+		if(repeatDict.containsKey(repeatInterval)) {
+			repeatMillis = repeatDict.get(repeatInterval);
 		}
 		
-		boolean result = alarm.addAlarm(repeat.equalsIgnoreCase("true"),
-				title, subtitle, ticker, PLUGIN_PREFIX + id, calendar);
+		boolean result = alarm.addAlarm(
+				PLUGIN_PREFIX + id, 
+				calendar, 
+				title, 
+				body, 
+				repeatMillis
+			);
 		
 		return result;
 	}

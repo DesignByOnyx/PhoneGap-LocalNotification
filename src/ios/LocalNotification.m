@@ -22,20 +22,20 @@
     UILocalNotification* notif = [[UILocalNotification alloc] init];
 
 	double fireDate             = [[command.arguments objectAtIndex:0] doubleValue];
-    NSString *alertBody         =  [command.arguments objectAtIndex:1];
-    NSNumber *repeatInterval    =  [command.arguments objectAtIndex:2];
+    NSString *text              =  [command.arguments objectAtIndex:1];
+    NSString *repeatInterval    =  [command.arguments objectAtIndex:2];
     //NSString *soundName         =  [command.arguments objectAtIndex:3];
     NSString *notificationId    =  [command.arguments objectAtIndex:3];
     NSString *callbackData    =  [command.arguments objectAtIndex:4];
     
-    notif.alertBody         = ([alertBody isEqualToString:@""]) ? nil : alertBody;
+    notif.alertBody         = ([text isEqualToString:@""]) ? nil : text;
     notif.fireDate          = [NSDate dateWithTimeIntervalSince1970:fireDate];
     notif.repeatInterval    = [[repeatDict objectForKey:repeatInterval] intValue];
     //notif.soundName         = soundName;
     notif.timeZone          = [NSTimeZone defaultTimeZone];
     
 	notif.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                notificationId    , @"notificationId",
+                                notificationId, @"notificationId",
                                 callbackData, @"callbackData",
                                 nil
                               ];
@@ -45,7 +45,6 @@
     @try {
         [[UIApplication sharedApplication] scheduleLocalNotification:notif];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK  messageAsString:notificationId];
-        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
     } @catch (NSException* exception) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR  messageAsString:[exception reason]];
     }
@@ -57,23 +56,48 @@
     
     NSString *notificationId    = [command.arguments objectAtIndex:0];
 	NSArray *notifications      = [[UIApplication sharedApplication] scheduledLocalNotifications];
+    CDVPluginResult *pluginResult;
     
-	for (UILocalNotification *notification in notifications) {
+    @try {
+        for (UILocalNotification *notification in notifications) {
+            NSString *notId = [notification.userInfo objectForKey:@"notificationId"];
+            
+            if ([notificationId isEqualToString:notId]) {
+                [[UIApplication sharedApplication] cancelLocalNotification:notification];
+            }
+        }
         
-		NSString *notId = [notification.userInfo objectForKey:@"notificationId"];
-        
-		if ([notificationId isEqualToString:notId]) {
-			[[UIApplication sharedApplication] cancelLocalNotification: notification];
-		}
-        
-	}
-
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:notificationId];
+    } @catch (NSException *exception) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR  messageAsString:[exception reason]];
+    }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)cancelAllNotifications:(CDVInvokedUrlCommand*)command {
+    NSMutableArray *ids = [[NSMutableArray alloc] init];
+    NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
+    CDVPluginResult *pluginResult;
     
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
- 
+    @try {
+        // [[UIApplication sharedApplication] cancelAllLocalNotifications];
+        // Only delete notifications created by this plugin
+        for (UILocalNotification *notification in notifications) {
+            NSString *notificationId = [notification.userInfo objectForKey:@"notificationId"];
+            if( notificationId ) {
+                [ids addObject:notificationId];
+                [[UIApplication sharedApplication] cancelLocalNotification:notification];
+            }
+        }
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:ids];
+        
+    } @catch (NSException* exception) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR  messageAsString:[exception reason]];
+    }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)didReceiveLocalNotification:(NSNotification *)notification
@@ -83,7 +107,7 @@
     // return a javascript object with notification userInfo
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:uiNotification.userInfo options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString *jsStatement = [NSString stringWithFormat:@"document.addEventListener('deviceready', function() { localNotifier.receiveNotification(%@); });", jsonString];
+    NSString *jsStatement = [NSString stringWithFormat:@"document.addEventListener('deviceready', function() { LocalNotification.receiveNotification(%@); });", jsonString];
     
     [self writeJavascript:jsStatement];
 }

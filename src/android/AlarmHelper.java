@@ -34,9 +34,11 @@ public class AlarmHelper {
 	 * @see LocalNotification#add(boolean, String, String, String, int,
 	 *      Calendar)
 	 */
-	public boolean addAlarm(boolean repeatDaily, String alarmTitle,
-			String alarmSubTitle, String alarmTicker, String notificationId,
-			Calendar cal) {
+	public boolean addAlarm(String notificationId, 
+			Calendar cal,
+			String alarmTitle,
+			String alarmBody,
+			Long repeatInterval) {
 
 		final long triggerTime = cal.getTimeInMillis();
 		
@@ -46,8 +48,8 @@ public class AlarmHelper {
 
 		intent.setAction(notificationId);
 		intent.putExtra(AlarmReceiver.TITLE, alarmTitle);
-		intent.putExtra(AlarmReceiver.SUBTITLE, alarmSubTitle);
-		intent.putExtra(AlarmReceiver.TICKER_TEXT, alarmTicker);
+		intent.putExtra(AlarmReceiver.SUBTITLE, alarmBody);
+		//intent.putExtra(AlarmReceiver.TICKER_TEXT, alarmTicker);
 		intent.putExtra(AlarmReceiver.NOTIFICATION_ID, notificationId);
 		intent.putExtra(AlarmReceiver.HOUR_OF_DAY, hour);
 		intent.putExtra(AlarmReceiver.MINUTE, min);
@@ -57,9 +59,8 @@ public class AlarmHelper {
 		/* Get the AlarmManager service */
 		final AlarmManager am = getAlarmManager();
 
-		if (repeatDaily) {
-			am.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime,
-					AlarmManager.INTERVAL_DAY, sender);
+		if (repeatInterval > 0) {
+			am.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime, repeatInterval, sender);
 		} else {
 			am.set(AlarmManager.RTC_WAKEUP, triggerTime, sender);
 		}
