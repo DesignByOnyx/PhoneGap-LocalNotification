@@ -1,4 +1,4 @@
-package org.apache.cordova.localnotification;
+package com.phonegap.plugins.localnotification;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -71,11 +71,13 @@ public class AlarmHelper {
 	/**
 	 * @see LocalNotification#cancelNotification(int)
 	 */
+	/*
 	public boolean cancelAlarm(int id) {
 		return cancelAlarm(LocalNotification.PLUGIN_PREFIX + id);
 	}
+	*/
 	
-	public boolean cancelAlarm(String prefixId) {
+	public boolean cancelAlarm(String notificationId) {
 		/*
 		 * Create an intent that looks similar, to the one that was registered
 		 * using add. Making sure the notification id in the action is the same.
@@ -83,7 +85,7 @@ public class AlarmHelper {
 		 * and cancel it.
 		 */
 		final Intent intent = new Intent(this.ctx, AlarmReceiver.class);
-		intent.setAction(prefixId);
+		intent.setAction(notificationId);
 
 		final PendingIntent pi = PendingIntent.getBroadcast(this.ctx, 0,
 				intent, PendingIntent.FLAG_CANCEL_CURRENT);

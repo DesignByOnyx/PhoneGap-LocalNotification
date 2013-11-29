@@ -1,6 +1,6 @@
-package org.apache.cordova.localnotification;
+package com.phonegap.plugins.localnotification;
 
-import java.util.Calendar;
+//import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,11 +22,13 @@ import android.util.Log;
  */
 public class AlarmRestoreOnBoot extends BroadcastReceiver {
 	
-	private AlarmHelper alarm = null;
+	//private AlarmHelper alarm = null;
+	private LocalNotification localNotifier = null;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		alarm = new AlarmHelper(context);
+		//alarm = new AlarmHelper(context);
+		localNotifier = new LocalNotification();
 
 		// Obtain alarm details form Shared Preferences
 		final SharedPreferences alarmSettings = context.getSharedPreferences(
@@ -40,7 +42,8 @@ public class AlarmRestoreOnBoot extends BroadcastReceiver {
 		 */
 		for (String alarmId : alarmIds) {
 			try {
-				this.processAlarm(new JSONArray(alarmSettings.getString(alarmId, "")));
+				//this.processAlarm(new JSONArray(alarmSettings.getString(alarmId, "")));
+				localNotifier.add(new JSONArray(alarmSettings.getString(alarmId, "")));
 			} catch (JSONException e) {
 				Log.d(LocalNotification.PLUGIN_NAME,
 						"AlarmRestoreOnBoot: Error while restoring alarm details after reboot: "
@@ -52,6 +55,7 @@ public class AlarmRestoreOnBoot extends BroadcastReceiver {
 				"AlarmRestoreOnBoot: Successfully restored alarms upon reboot");
 	}
 	
+	/*
 	public boolean processAlarm(JSONArray args) throws JSONException {
 		return this.add(args.getInt(0), args.getString(1), args.getString(2),
 				args.getString(3), args.getJSONArray(4), args.getString(5));
@@ -74,4 +78,5 @@ public class AlarmRestoreOnBoot extends BroadcastReceiver {
 		
 		return result;
 	}
+	*/
 }

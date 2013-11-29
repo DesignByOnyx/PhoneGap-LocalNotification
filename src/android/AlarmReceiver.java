@@ -1,4 +1,4 @@
-package org.apache.cordova.localnotification;
+package com.phonegap.plugins.localnotification;
 
 import java.util.Calendar;
 
@@ -92,8 +92,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 		 * notification, make sure the ID below matches the ID that you store in
 		 * the alarm intent.
 		 */
-		final int id = Integer.parseInt(notificationId.substring(
-				org.apache.cordova.localnotification.LocalNotification.PLUGIN_PREFIX.length()));
-		notificationMgr.notify(id, mBuilder.build());
+		/*final int id = Integer.parseInt(notificationId.substring(
+				com.phonegap.plugins.localnotification.LocalNotification.PLUGIN_PREFIX.length()));
+		notificationMgr.notify(id, mBuilder.build());*/
+		
+		// The Tag/Id pair is unique - in our case the ID remains the same
+		notificationMgr.notify(notificationId, 0, mBuilder.build());
 	}
 }
