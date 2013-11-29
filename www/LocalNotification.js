@@ -66,8 +66,8 @@ var localNotifier = {
 			options.repeatInterval = 0;
 		}
 		
-		if( !options.intervalId && options.intervalId != 0 ) {
-			options.intervalId = "localnotification_" + Math.round(Math.random() * 100000000);
+		if( !options.notificationId && options.notificationId != 0 ) {
+			options.notificationId = "localnotification_" + Math.round(Math.random() * 100000000);
 		}
 		
 		// "null" is valid json where "undefined" is not
@@ -76,10 +76,10 @@ var localNotifier = {
 		}
 		
 		cordova.exec(success, fail, "LocalNotification", "addNotification", [
+			options.notificationId,
 			options.fireDate,
 			options.alertBody,
 			options.repeatInterval,
-			options.intervalId,
 			options.callbackData
 		]);
 	},
