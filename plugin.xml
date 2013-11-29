@@ -20,7 +20,7 @@
 	<platform name="android">
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="LocalNotification" >
-	        	<param name="android-package" value="com.phonegap.plugins.localnotification"/>
+	        	<param name="android-package" value="com.phonegap.plugins.localnotification.LocalNotification"/>
 			</feature>
 		</config-file>
 		
