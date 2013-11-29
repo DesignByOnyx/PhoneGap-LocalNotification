@@ -20,25 +20,25 @@
 	<platform name="android">
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="LocalNotification" >
-	        	<param name="android-package" value="org.apache.cordova.localnotification"/>
+	        	<param name="android-package" value="com.phonegap.plugins.localnotification"/>
 			</feature>
 		</config-file>
 		
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <receiver android:name="org.apache.cordova.localnotification.AlarmReceiver" >
+            <receiver android:name="com.phonegap.plugins.localnotification.AlarmReceiver" >
             </receiver>
             
-            <receiver android:name="org.apache.cordova.localnotification.AlarmRestoreOnBoot" >
+            <receiver android:name="com.phonegap.plugins.localnotification.AlarmRestoreOnBoot" >
                 <intent-filter>
                     <action android:name="android.intent.action.BOOT_COMPLETED" />
                 </intent-filter>
             </receiver>
         </config-file>
 		
-		<source-file src="src/android/AlarmHelper.java" target-dir="src/org/apache/cordova/localnotification/" />
-        <source-file src="src/android/AlarmReceiver.java" target-dir="src/org/apache/cordova/localnotification/" />
-        <source-file src="src/android/AlarmRestoreOnBoot.java" target-dir="src/org/apache/cordova/localnotification/" />
-        <source-file src="src/android/LocalNotification.java" target-dir="src/org/apache/cordova/localnotification/" />
+		<source-file src="src/android/AlarmHelper.java" target-dir="src/com/phonegap/plugins/localnotification/localnotification/" />
+        <source-file src="src/android/AlarmReceiver.java" target-dir="src/com/phonegap/plugins/localnotification/localnotification/" />
+        <source-file src="src/android/AlarmRestoreOnBoot.java" target-dir="src/com/phonegap/plugins/localnotification/localnotification/" />
+        <source-file src="src/android/LocalNotification.java" target-dir="src/com/phonegap/plugins/localnotification/localnotification/" />
 	</platform>
 	
 	<platform name="ios">
