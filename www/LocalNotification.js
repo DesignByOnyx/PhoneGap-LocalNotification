@@ -50,7 +50,7 @@ var localNotifier = {
 		steal.dev.log("Adding Notification with options: " + JSON.stringify(options));
 		
 		if( Object.prototype.toString.call(options.fireDate) === '[object Date]' ) {
-			options.fireDate = Math.round(options.fireDate.getTime()/1000);
+			options.fireDate = Math.round(options.fireDate.getTime());
 		}
 		
 		if( !options.fireDate ) {

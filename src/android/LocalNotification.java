@@ -46,7 +46,7 @@ public class LocalNotification extends CordovaPlugin {
 
 		alarm = new AlarmHelper(cordova.getActivity().getBaseContext());
 		
-		Log.d(PLUGIN_NAME, "Plugin execute called with action: " + action);
+		Log.i(PLUGIN_NAME, "Plugin execute called with action: " + action);
 		
 		if (action.equalsIgnoreCase("addNotification")) {
 			success = this.add(args);
@@ -72,11 +72,16 @@ public class LocalNotification extends CordovaPlugin {
 	//success = this.add(notificationId, fireDate, title, body, repeatInterval, callbackData);
 	public boolean add(JSONArray args) throws JSONException {
 		String notificationId = args.getString(0);
+		Log.i(PLUGIN_NAME, " - notificationId: " + notificationId);
 		long fireDate = args.getLong(1);
-		String title = args.getString(2);
-		String body = args.getString(3);
-		String repeatInterval = args.getString(4);
-		//String callbackData = args.getString(5);
+		Log.i(PLUGIN_NAME, " - fireDate: " + fireDate);
+		//String title = args.getString(2);
+		//Log.i(PLUGIN_NAME, " - title: " + title);
+		String body = args.getString(2);
+		Log.i(PLUGIN_NAME, " - body: " + body);
+		String repeatInterval = args.getString(3);
+		Log.i(PLUGIN_NAME, " - repeatInterval: " + repeatInterval);
+		//String callbackData = args.getString(4);
 		
 		Map<String, Long> repeatDict = new HashMap<String, Long>();
 		repeatDict.put("hourly"		, 3600000L); // 1000 x 60 x 60
@@ -88,22 +93,28 @@ public class LocalNotification extends CordovaPlugin {
 		
 		Date date = new Date();
 		Calendar calendar = Calendar.getInstance();
+		Log.i(PLUGIN_NAME, " ---- checkpoint 1");
 		
 		date.setTime(fireDate);
 		calendar.setTime(date);
+
+		Log.i(PLUGIN_NAME, " ---- checkpoint 2");
 		
 		long repeatMillis = 0;
 		if(repeatDict.containsKey(repeatInterval)) {
 			repeatMillis = repeatDict.get(repeatInterval);
 		}
+		Log.i(PLUGIN_NAME, " ---- checkpoint 3");
 		
 		boolean result = alarm.addAlarm(
 				notificationId, 
 				calendar, 
-				title, 
+				null, 
 				body, 
 				repeatMillis
 			);
+		
+		Log.i(PLUGIN_NAME, " ---- checkpoint 4: " + result);
 
 		this.persistAlarm(notificationId, args);
 		return result;

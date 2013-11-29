@@ -29,7 +29,7 @@
     NSString *callbackData    =  [command.arguments objectAtIndex:4];
     
     notif.alertBody         = ([text isEqualToString:@""]) ? nil : text;
-    notif.fireDate          = [NSDate dateWithTimeIntervalSince1970:fireDate];
+    notif.fireDate          = [NSDate dateWithTimeIntervalSince1970:(fireDate/1000)];
     notif.repeatInterval    = [[repeatDict objectForKey:repeatInterval] intValue];
     //notif.soundName         = soundName;
     notif.timeZone          = [NSTimeZone defaultTimeZone];
