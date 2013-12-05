@@ -182,6 +182,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		//}
 	}
 	
+    // http://stackoverflow.com/questions/2166961/determining-the-current-foreground-application-from-a-background-task-or-service
 	private RunningAppProcessInfo getActivityIfRunning(String packageClassName, Context context) {
 	    RunningAppProcessInfo result = null, info = null;
 	    ComponentName activity = null;

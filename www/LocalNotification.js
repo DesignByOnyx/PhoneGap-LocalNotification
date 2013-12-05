@@ -1,4 +1,4 @@
-cordova.define("com.phonegap.plugins.localnotification.LocalNotification", function(require, exports, module) {/*
+/*
  * Cordova/PhoneGap 3.0.0+ LocalNotification Plugin
  * Original author: Olivier Lesnicki
  */
@@ -96,4 +96,4 @@ var localNotifier = {
 	}
 };
 
-module.exports = localNotifier;});
+module.exports = localNotifier;
