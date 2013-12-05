@@ -1,4 +1,4 @@
-/*
+cordova.define("com.phonegap.plugins.localnotification.LocalNotification", function(require, exports, module) {/*
  * Cordova/PhoneGap 3.0.0+ LocalNotification Plugin
  * Original author: Olivier Lesnicki
  */
@@ -10,8 +10,9 @@ function triggerEvent(elem, evtName, evtData) {
 	if(window.CustomEvent) {
 		evt = new CustomEvent(evtName, evtData);
 	} else {
-		evt = document.createEvent( 'CustomEvent' );
-		evt.initCustomEvent( evtName, evtData.bubbles, evtData.cancelable, evtData.detail );
+		evt = document.createEvent( 'Event' );
+		evt.initEvent( evtName, evtData.bubbles, evtData.cancelable );
+		evt.detail = evtData.detail;
 	}
 	
 	elem.dispatchEvent(evt);
@@ -39,6 +40,7 @@ var localNotifier = {
 	},
 	receiveNotification: function(data) {
 		// Delay needed to give "resume" time to finish
+		steal.dev.log("RECEIVED NOTIFICATION: " + data);
 		var self = this;
 		window.setTimeout(function() {
 			self.queue.push(data);
@@ -94,4 +96,4 @@ var localNotifier = {
 	}
 };
 
-module.exports = localNotifier;
+module.exports = localNotifier;});

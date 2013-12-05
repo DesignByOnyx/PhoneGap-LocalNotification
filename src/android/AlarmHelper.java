@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONObject;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -38,7 +40,8 @@ public class AlarmHelper {
 			Calendar cal,
 			String alarmTitle,
 			String alarmBody,
-			Long repeatInterval) {
+			Long repeatInterval,
+			JSONObject userInfo) {
 
 		final long triggerTime = cal.getTimeInMillis();
 		
@@ -49,8 +52,9 @@ public class AlarmHelper {
 		intent.setAction(notificationId);
 		intent.putExtra(AlarmReceiver.TITLE, alarmTitle);
 		intent.putExtra(AlarmReceiver.SUBTITLE, alarmBody);
-		//intent.putExtra(AlarmReceiver.TICKER_TEXT, alarmTicker);
+		intent.putExtra(AlarmReceiver.TICKER_TEXT, alarmBody);
 		intent.putExtra(AlarmReceiver.NOTIFICATION_ID, notificationId);
+		intent.putExtra(AlarmReceiver.USER_INFO, userInfo.toString());
 		intent.putExtra(AlarmReceiver.HOUR_OF_DAY, hour);
 		intent.putExtra(AlarmReceiver.MINUTE, min);
 

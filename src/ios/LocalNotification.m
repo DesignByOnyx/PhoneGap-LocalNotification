@@ -107,7 +107,13 @@
     // return a javascript object with notification userInfo
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:uiNotification.userInfo options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString *jsStatement = [NSString stringWithFormat:@"document.addEventListener('deviceready', function() { LocalNotification.receiveNotification(%@); });", jsonString];
+    NSString *jsStatement = [NSString stringWithFormat:@"(function() {"
+                             "var fn = function() {"
+                                "LocalNotification.receiveNotification(%@);"
+                                "document.removeEventListener('deviceready', fn)"
+                             "};"
+                             "document.addEventListener('deviceready', fn);"
+                        "}());", jsonString];
     
     [self writeJavascript:jsStatement];
 }

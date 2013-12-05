@@ -10,10 +10,13 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -28,7 +31,8 @@ import android.util.Log;
  */
 public class LocalNotification extends CordovaPlugin {
 
-	public static final String PLUGIN_NAME = "LocalNotification";
+	public static final String PLUGIN_NAME = "PhonegapLocalNotification";
+	public static final String KEY_STARTUP_CLASS = "PhonegapLocalNotification_StartupClass";
 	//public static final String PLUGIN_PREFIX = "LocalNotification_";
 
 	/**
@@ -36,11 +40,22 @@ public class LocalNotification extends CordovaPlugin {
 	 * AlarmRestoreOnBoot class.
 	 */
 	private AlarmHelper alarm = null;
+	private Context appContext = null;
+	private static LocalNotification instance;
+	
+	public static LocalNotification getInstance() {
+	    return instance;
+	}
+	
+	public LocalNotification() {
+	    instance = this;
+	}
 
 	@Override
-	public boolean execute(String action, JSONArray args,
-			CallbackContext callbackContext) throws JSONException {
+	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+		appContext = this.cordova.getActivity().getApplicationContext();
 		boolean success = false;
+		String message = "There was an error.";
 
 		final CordovaInterface cordova = this.cordova;
 
@@ -50,6 +65,7 @@ public class LocalNotification extends CordovaPlugin {
 		
 		if (action.equalsIgnoreCase("addNotification")) {
 			success = this.add(args);
+			message = success ? args.getString(0) : "Error adding notification.";
 			
 		} else if (action.equalsIgnoreCase("cancelNotification")) {
 			success = this.cancelNotification(args.getString(0));
@@ -60,7 +76,9 @@ public class LocalNotification extends CordovaPlugin {
 		}
 
 		if (success) {
-			callbackContext.success();
+			callbackContext.success(message);
+		} else {
+			callbackContext.error(message);
 		}
 
 		return success;
@@ -72,16 +90,16 @@ public class LocalNotification extends CordovaPlugin {
 	//success = this.add(notificationId, fireDate, title, body, repeatInterval, callbackData);
 	public boolean add(JSONArray args) throws JSONException {
 		String notificationId = args.getString(0);
-		Log.i(PLUGIN_NAME, " - notificationId: " + notificationId);
 		long fireDate = args.getLong(1);
-		Log.i(PLUGIN_NAME, " - fireDate: " + fireDate);
 		//String title = args.getString(2);
-		//Log.i(PLUGIN_NAME, " - title: " + title);
 		String body = args.getString(2);
-		Log.i(PLUGIN_NAME, " - body: " + body);
 		String repeatInterval = args.getString(3);
-		Log.i(PLUGIN_NAME, " - repeatInterval: " + repeatInterval);
-		//String callbackData = args.getString(4);
+		String callbackData = args.getString(4);
+		
+		// userInfo is an ios convention, just trying to be consistent
+		JSONObject userInfo = new JSONObject();
+		userInfo.put("notificationId", notificationId);
+		userInfo.put("callbackData", callbackData);
 		
 		Map<String, Long> repeatDict = new HashMap<String, Long>();
 		repeatDict.put("hourly"		, 3600000L); // 1000 x 60 x 60
@@ -93,31 +111,42 @@ public class LocalNotification extends CordovaPlugin {
 		
 		Date date = new Date();
 		Calendar calendar = Calendar.getInstance();
-		Log.i(PLUGIN_NAME, " ---- checkpoint 1");
+		//Log.i(PLUGIN_NAME, " ---- checkpoint 1");
 		
 		date.setTime(fireDate);
 		calendar.setTime(date);
 
-		Log.i(PLUGIN_NAME, " ---- checkpoint 2");
+		//Log.i(PLUGIN_NAME, " ---- checkpoint 2");
 		
 		long repeatMillis = 0;
 		if(repeatDict.containsKey(repeatInterval)) {
 			repeatMillis = repeatDict.get(repeatInterval);
 		}
-		Log.i(PLUGIN_NAME, " ---- checkpoint 3");
+		//Log.i(PLUGIN_NAME, " ---- checkpoint 3");
 		
 		boolean result = alarm.addAlarm(
 				notificationId, 
 				calendar, 
 				null, 
 				body, 
-				repeatMillis
+				repeatMillis,
+				userInfo
 			);
 		
-		Log.i(PLUGIN_NAME, " ---- checkpoint 4: " + result);
+		//Log.i(PLUGIN_NAME, " ---- checkpoint 4: " + result);
 
 		this.persistAlarm(notificationId, args);
 		return result;
+	}
+	
+	public void didReceiveLocalNotification(String userInfo) {
+		webView.loadUrl("javascript:(function() {" +
+				"var fn = function() {" +
+					"LocalNotification.receiveNotification(" + userInfo + "); " +
+					"document.removeEventListener('deviceready', fn)" +
+				"};" +
+				"document.addEventListener('deviceready', fn);" +
+			"}());");
 	}
 
 	/**
@@ -153,6 +182,20 @@ public class LocalNotification extends CordovaPlugin {
 		this.unpersistAlarmAll();
 		return alarm.cancelAll(alarmSettings);
 	}
+	
+	// Returns the Startup Class Name saved when a notification was created
+	public static String getSavedStartupClassName(Context context) {
+		SharedPreferences sharedPrefs = getSharedPreferences(context);
+		return sharedPrefs.getString(KEY_STARTUP_CLASS, null);
+	}
+	
+	// Returns the Startup Class Name for a particular context
+	public static String getContextStartupClassName(Context context) {
+		PackageManager manager = context.getPackageManager();
+    	String packageClassName = manager.getLaunchIntentForPackage(context.getPackageName()).getComponent().getClassName();
+		
+		return packageClassName;
+	}
 
 	/**
 	 * Persist the information of this alarm to the Android Shared Preferences.
@@ -167,11 +210,9 @@ public class LocalNotification extends CordovaPlugin {
 	 * @return true when successfull, otherwise false
 	 */
 	private boolean persistAlarm(String id, JSONArray args) {
-		final CordovaInterface cordova = this.cordova;
+		final Editor alarmSettingsEditor = getSharedPreferences(appContext).edit();
 		
-		final Editor alarmSettingsEditor = cordova.getActivity().getBaseContext().getSharedPreferences(
-				PLUGIN_NAME, Context.MODE_PRIVATE).edit();
-
+		alarmSettingsEditor.putString(KEY_STARTUP_CLASS, getContextStartupClassName(appContext));
 		alarmSettingsEditor.putString(id, args.toString());
 
 		return alarmSettingsEditor.commit();
@@ -186,10 +227,7 @@ public class LocalNotification extends CordovaPlugin {
 	 * @return true when successfull, otherwise false
 	 */
 	private boolean unpersistAlarm(String id) {
-		final CordovaInterface cordova = this.cordova;
-		
-		final Editor alarmSettingsEditor = cordova.getActivity().getBaseContext().getSharedPreferences(
-				PLUGIN_NAME, Context.MODE_PRIVATE).edit();
+		final Editor alarmSettingsEditor = getSharedPreferences(appContext).edit();
 
 		alarmSettingsEditor.remove(id);
 
@@ -202,13 +240,14 @@ public class LocalNotification extends CordovaPlugin {
 	 * @return true when successfull, otherwise false
 	 */
 	private boolean unpersistAlarmAll() {
-		final CordovaInterface cordova = this.cordova;
-		
-		final Editor alarmSettingsEditor = cordova.getActivity().getBaseContext().getSharedPreferences(
-				PLUGIN_NAME, Context.MODE_PRIVATE).edit();
+		final Editor alarmSettingsEditor = getSharedPreferences(appContext).edit();
 
 		alarmSettingsEditor.clear();
 
 		return alarmSettingsEditor.commit();
+	}
+	
+	private static SharedPreferences getSharedPreferences(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context);
 	}
 }
