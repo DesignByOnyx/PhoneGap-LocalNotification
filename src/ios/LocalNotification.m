@@ -20,13 +20,13 @@
     [repeatDict setObject:[NSNumber numberWithInt:0] forKey:@""         ];
     
     UILocalNotification* notif = [[UILocalNotification alloc] init];
-
-	double fireDate             = [[command.arguments objectAtIndex:0] doubleValue];
-    NSString *text              =  [command.arguments objectAtIndex:1];
-    NSString *repeatInterval    =  [command.arguments objectAtIndex:2];
-    //NSString *soundName         =  [command.arguments objectAtIndex:3];
-    NSString *notificationId    =  [command.arguments objectAtIndex:3];
+    
+    NSString *notificationId    =  [command.arguments objectAtIndex:0];
+	double fireDate             = [[command.arguments objectAtIndex:1] doubleValue];
+    NSString *text              =  [command.arguments objectAtIndex:2];
+    NSString *repeatInterval    =  [command.arguments objectAtIndex:3];
     NSString *callbackData    =  [command.arguments objectAtIndex:4];
+    //NSString *soundName         =  [command.arguments objectAtIndex:3];
     
     notif.alertBody         = ([text isEqualToString:@""]) ? nil : text;
     notif.fireDate          = [NSDate dateWithTimeIntervalSince1970:(fireDate/1000)];
