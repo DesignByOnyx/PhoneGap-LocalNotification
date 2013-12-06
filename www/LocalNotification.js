@@ -40,7 +40,6 @@ var localNotifier = {
 	},
 	receiveNotification: function(data) {
 		// Delay needed to give "resume" time to finish
-		steal.dev.log("RECEIVED NOTIFICATION: " + data);
 		var self = this;
 		window.setTimeout(function() {
 			self.queue.push(data);
@@ -49,8 +48,6 @@ var localNotifier = {
 	},
 	
 	add: function(success, fail, options) {
-		steal.dev.log("Adding Notification with options: " + JSON.stringify(options));
-		
 		if( Object.prototype.toString.call(options.fireDate) === '[object Date]' ) {
 			options.fireDate = Math.round(options.fireDate.getTime());
 		}
@@ -78,11 +75,11 @@ var localNotifier = {
 		}
 		
 		cordova.exec(success, fail, "LocalNotification", "addNotification", [
-			options.notificationId,
-			options.fireDate,
-			options.alertBody,
-			options.repeatInterval,
-			options.callbackData
+			options.notificationId, //0
+			options.fireDate, //1
+			options.alertBody, //2
+			options.repeatInterval, //3
+			options.callbackData //4
 		]);
 	},
 	
