@@ -2,7 +2,7 @@
  * Cordova/PhoneGap 3.0.0+ LocalNotification Plugin
  * Original author: Olivier Lesnicki
  */
- 
+/*
 function triggerEvent(elem, evtName, evtData) {
 	var evt;
 	evtData = evtData || {bubbles:true, cancelable:true, detail:undefined};
@@ -17,12 +17,15 @@ function triggerEvent(elem, evtName, evtData) {
 	
 	elem.dispatchEvent(evt);
 }
+*/
+
+var receiveQueue = [],
+	receiveCallbacks = [];
 
 //------------------------------------------------------------------------------
 // object that we're exporting
 //------------------------------------------------------------------------------
 var localNotifier = {
-	queue: [], //TODO: Rename
 	REPEAT_INTERVAL: {
 		"HOURLY"	: "hourly",
 		"DAILY"		: "daily",
@@ -32,19 +35,36 @@ var localNotifier = {
 		"YEARLY"	: "yearly",
 	},
 	
-	flushQueue: function( callback ) {
-		var n = this.queue.length;
-		while(n--) {
-			callback(this.queue.shift());
+	onReceive: function(callback) {
+		if( typeof callback === 'function' ) {
+			receiveCallbacks.push(callback);
+		}
+		
+		if( receiveQueue.length ) {
+			for(var i = 0; i < receiveQueue.length; i++) {
+				this.receiveNotification( receiveQueue[i] );
+			}
 		}
 	},
+	
 	receiveNotification: function(data) {
 		// Delay needed to give "resume" time to finish
 		var self = this;
+		/*
 		window.setTimeout(function() {
 			self.queue.push(data);
+			// TODO: let this javascript object handle events instead of using HTML events
 			triggerEvent(document, "notification-receive", {bubbles:true, cancelable:true, detail:data});
 		}, 10);
+		*/
+		
+		if(receiveCallbacks.length) {
+			for(var i = 0; i < receiveCallbacks.length; i++) {
+				receiveCallbacks[i]( data );
+			}
+		} else {
+			receiveQueue.push(data);
+		}
 	},
 	
 	add: function(success, fail, options) {
@@ -62,7 +82,7 @@ var localNotifier = {
 		
 		options.repeatInterval = this.REPEAT_INTERVAL[ ('' + options.repeatInterval).toUpperCase() ];
 		if( !options.repeatInterval ) {
-			options.repeatInterval = 0;
+			options.repeatInterval = "0";
 		}
 		
 		if( !options.notificationId && options.notificationId != 0 ) {

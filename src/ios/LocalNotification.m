@@ -17,28 +17,34 @@
     [repeatDict setObject:[NSNumber numberWithInt:NSMonthCalendarUnit   ] forKey:@"monthly" ];
     [repeatDict setObject:[NSNumber numberWithInt:NSQuarterCalendarUnit ] forKey:@"quarterly" ];
     [repeatDict setObject:[NSNumber numberWithInt:NSYearCalendarUnit    ] forKey:@"yearly"  ];
-    [repeatDict setObject:[NSNumber numberWithInt:0] forKey:@""         ];
+    [repeatDict setObject:[NSNumber numberWithInt:0] forKey:@"0"         ];
     
-    UILocalNotification* notif = [[UILocalNotification alloc] init];
     
     NSString *notificationId    =  [command.arguments objectAtIndex:0];
 	double fireDate             = [[command.arguments objectAtIndex:1] doubleValue];
-    NSString *text              =  [command.arguments objectAtIndex:2];
+    NSString *alertBody              =  [command.arguments objectAtIndex:2];
     NSString *repeatInterval    =  [command.arguments objectAtIndex:3];
     NSString *callbackData    =  [command.arguments objectAtIndex:4];
     //NSString *soundName         =  [command.arguments objectAtIndex:3];
     
-    notif.alertBody         = ([text isEqualToString:@""]) ? nil : text;
+    
+    UILocalNotification* notif = [[UILocalNotification alloc] init];
+    // Do the userInfo first - save all the data as it was passed in
+	notif.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                          notificationId, @"notificationId",
+                          [NSNumber numberWithDouble:fireDate], @"fireDate",
+                          alertBody, @"alertBody",
+                          repeatInterval, @"repeatInterval",
+                          callbackData, @"callbackData",
+                          nil
+                      ];
+    
+    notif.alertBody         = ([alertBody isEqualToString:@""]) ? nil : alertBody;
     notif.fireDate          = [NSDate dateWithTimeIntervalSince1970:(fireDate/1000)];
     notif.repeatInterval    = [[repeatDict objectForKey:repeatInterval] intValue];
     //notif.soundName         = soundName;
     notif.timeZone          = [NSTimeZone defaultTimeZone];
     
-	notif.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                notificationId, @"notificationId",
-                                callbackData, @"callbackData",
-                                nil
-                              ];
     
     CDVPluginResult* pluginResult = nil;
     
@@ -102,6 +108,7 @@
 
 - (void)didReceiveLocalNotification:(NSNotification *)notification
 {
+    NSLog(@"LocalNotification Plugin received notification");
     UILocalNotification* uiNotification  = [notification object];
 
     // return a javascript object with notification userInfo

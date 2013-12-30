@@ -43,7 +43,7 @@ public class AlarmRestoreOnBoot extends BroadcastReceiver {
 		for (String alarmId : alarmIds) {
 			try {
 				//this.processAlarm(new JSONArray(alarmSettings.getString(alarmId, "")));
-				localNotifier.add(new JSONArray(alarmSettings.getString(alarmId, "")));
+				localNotifier.addNotification(new JSONArray(alarmSettings.getString(alarmId, "")));
 			} catch (JSONException e) {
 				Log.d(LocalNotification.PLUGIN_NAME,
 						"AlarmRestoreOnBoot: Error while restoring alarm details after reboot: "

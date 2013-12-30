@@ -64,7 +64,7 @@ public class LocalNotification extends CordovaPlugin {
 		Log.i(PLUGIN_NAME, "Plugin execute called with action: " + action);
 		
 		if (action.equalsIgnoreCase("addNotification")) {
-			success = this.add(args);
+			success = this.addNotification(args);
 			message = success ? args.getString(0) : "Error adding notification.";
 			
 		} else if (action.equalsIgnoreCase("cancelNotification")) {
@@ -88,17 +88,20 @@ public class LocalNotification extends CordovaPlugin {
 	 * Set an alarm
 	 */
 	//success = this.add(notificationId, fireDate, title, body, repeatInterval, callbackData);
-	public boolean add(JSONArray args) throws JSONException {
+	public boolean addNotification(JSONArray args) throws JSONException {
 		String notificationId = args.getString(0);
 		long fireDate = args.getLong(1);
 		//String title = args.getString(2);
-		String body = args.getString(2);
+		String alertBody = args.getString(2);
 		String repeatInterval = args.getString(3);
 		String callbackData = args.getString(4);
 		
 		// userInfo is an ios convention, just trying to be consistent
 		JSONObject userInfo = new JSONObject();
 		userInfo.put("notificationId", notificationId);
+		userInfo.put("fireDate", fireDate);
+		userInfo.put("alertBody", alertBody);
+		userInfo.put("repeatInterval", repeatInterval);
 		userInfo.put("callbackData", callbackData);
 		
 		Map<String, Long> repeatDict = new HashMap<String, Long>();
@@ -128,7 +131,7 @@ public class LocalNotification extends CordovaPlugin {
 				notificationId, 
 				calendar, 
 				null, 
-				body, 
+				alertBody, 
 				repeatMillis,
 				userInfo
 			);
