@@ -42,7 +42,7 @@
     notif.alertBody         = ([alertBody isEqualToString:@""]) ? nil : alertBody;
     notif.fireDate          = [NSDate dateWithTimeIntervalSince1970:(fireDate/1000)];
     notif.repeatInterval    = [[repeatDict objectForKey:repeatInterval] intValue];
-    //notif.soundName         = soundName;
+    notif.soundName         = UILocalNotificationDefaultSoundName; // TODO: Allow sounds to bundle with the plugin
     notif.timeZone          = [NSTimeZone defaultTimeZone];
     
     
@@ -105,7 +105,7 @@
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-
+    
 - (void)didReceiveLocalNotification:(NSNotification *)notification
 {
     NSLog(@"LocalNotification Plugin received notification");
@@ -114,13 +114,14 @@
     // return a javascript object with notification userInfo
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:uiNotification.userInfo options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString *jsStatement = [NSString stringWithFormat:@"(function() {"
+    // Timeout needed for when app is already running in background and user clicks in status bar
+    NSString *jsStatement = [NSString stringWithFormat:@"setTimeout(function() {"
                              "var fn = function() {"
                                 "LocalNotification.receiveNotification(%@);"
                                 "document.removeEventListener('deviceready', fn)"
                              "};"
                              "document.addEventListener('deviceready', fn);"
-                        "}());", jsonString];
+                        "}, 500);", jsonString];
     
     [self writeJavascript:jsStatement];
 }
