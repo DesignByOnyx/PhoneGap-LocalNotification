@@ -21,16 +21,15 @@ Supported Platforms:
 
 4. In `Classes/AppDelegate.m` add the following to the `didFinishLaunchingWithOptions:` delegate
 
-	UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-    if (notification) {
-        [[self.viewController settings] setValue:notification forKey:@"LaunchOptionsLocalNotificationKey"];
-    }
+		UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+		if (notification) {
+			[[self.viewController settings] setValue:notification forKey:@"LaunchOptionsLocalNotificationKey"];
+		}
 
 5. In `Classes/MainViewController.m` add the following to the `webViewDidFinishLoad:` delegate
 
-	UILocalNotification *notification = [[self settings] objectForKey:@"LaunchOptionsLocalNotificationKey"];
-    if(notification) {
-        [theWebView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"setTimeout(function(){steal.dev.log('NOTIFICATION!!! - %@');}, 5000);", [notification.userInfo objectForKey:@"notificationId"]]];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:CDVLocalNotification object:notification];
-    }
+		UILocalNotification *notification = [[self settings] objectForKey:@"LaunchOptionsLocalNotificationKey"];
+		if(notification) {
+			[theWebView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"setTimeout(function(){steal.dev.log('NOTIFICATION!!! - %@');}, 5000);", [notification.userInfo objectForKey:@"notificationId"]]];
+			[[NSNotificationCenter defaultCenter] postNotificationName:CDVLocalNotification object:notification];
+		}
