@@ -30,6 +30,5 @@ Supported Platforms:
 
 		UILocalNotification *notification = [[self settings] objectForKey:@"LaunchOptionsLocalNotificationKey"];
 		if(notification) {
-			[theWebView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"setTimeout(function(){steal.dev.log('NOTIFICATION!!! - %@');}, 5000);", [notification.userInfo objectForKey:@"notificationId"]]];
 			[[NSNotificationCenter defaultCenter] postNotificationName:CDVLocalNotification object:notification];
 		}
